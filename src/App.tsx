@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import ChessBoard from "./components/ChessBoard";
 import type { ChessStats } from "./utils/chessAnalysis";
 import { analyzeFromPgn, analyzeFromFen } from "./utils/chessAnalysis";
@@ -10,7 +10,10 @@ function App() {
     const [stats, setStats] = useState<ChessStats>({
         whiteCaptures: 0,
         blackCaptures: 0,
+        whiteChecks: 0,
+        blackChecks: 0,
         captureMoves: [],
+        checkMoves: [],
     });
 
     const handleLoad = () => {
@@ -71,9 +74,7 @@ function App() {
                         rows={4}
                     />
 
-                    <button onClick={handleLoad}>
-                        Показать возможные взятия
-                    </button>
+                    <button onClick={handleLoad}>Анализировать позицию</button>
                 </div>
 
                 <div className="content-section">
@@ -86,12 +87,14 @@ function App() {
                     </div>
 
                     <div className="stats-section">
-                        <h2>Возможные взятия</h2>
+                        <h2>Анализ позиции</h2>
                         <div className="position-info">
                             <div className="turn-info">
                                 Сейчас ход:{" "}
-                                {stats.captureMoves.length > 0
-                                    ? stats.captureMoves[0].color === "w"
+                                {stats.captureMoves.length > 0 ||
+                                stats.checkMoves.length > 0
+                                    ? stats.captureMoves[0]?.color === "w" ||
+                                      stats.checkMoves[0]?.color === "w"
                                         ? "белых"
                                         : "черных"
                                     : "не определен"}
@@ -99,23 +102,49 @@ function App() {
                         </div>
 
                         <div className="capture-info">
-                            <div className="capture-legend">
-                                <div className="legend-item">
-                                    <div className="arrow green-arrow"></div>
-                                    <span>Взятия белых</span>
+                            <div className="legend-grid">
+                                <div className="legend-group">
+                                    <h4>Взятия:</h4>
+                                    <div className="legend-item">
+                                        <div className="arrow green-arrow"></div>
+                                        <span>Взятия белых</span>
+                                    </div>
+                                    <div className="legend-item">
+                                        <div className="arrow red-arrow"></div>
+                                        <span>Взятия черных</span>
+                                    </div>
                                 </div>
-                                <div className="legend-item">
-                                    <div className="arrow red-arrow"></div>
-                                    <span>Взятия черных</span>
+
+                                <div className="legend-group">
+                                    <h4>Шахи:</h4>
+                                    <div className="legend-item">
+                                        <div className="arrow blue-arrow"></div>
+                                        <span>Шахи белых</span>
+                                    </div>
+                                    <div className="legend-item">
+                                        <div className="arrow orange-arrow"></div>
+                                        <span>Шахи черных</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="stats">
+                            <div className="stats-grid">
                                 <div className="stat-group white-stats">
                                     <h3>Белые</h3>
                                     <div className="stat-item">
+                                        <span className="stat-label">
+                                            Взятия:
+                                        </span>
                                         <span className="stat-value">
                                             {stats.whiteCaptures}
+                                        </span>
+                                    </div>
+                                    <div className="stat-item">
+                                        <span className="stat-label">
+                                            Шахи:
+                                        </span>
+                                        <span className="stat-value">
+                                            {stats.whiteChecks}
                                         </span>
                                     </div>
                                 </div>
@@ -123,34 +152,21 @@ function App() {
                                 <div className="stat-group black-stats">
                                     <h3>Черные</h3>
                                     <div className="stat-item">
+                                        <span className="stat-label">
+                                            Взятия:
+                                        </span>
                                         <span className="stat-value">
                                             {stats.blackCaptures}
                                         </span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="capture-details">
-                                <h4>Возможные взятия:</h4>
-                                <div className="capture-list">
-                                    {stats.captureMoves.map(
-                                        (capture, index) => (
-                                            <div
-                                                key={index}
-                                                className={`capture-item ${
-                                                    capture.color === "w"
-                                                        ? "white-capture"
-                                                        : "black-capture"
-                                                }`}
-                                            >
-                                                {capture.color === "w"
-                                                    ? "Белые: "
-                                                    : "Черные: "}
-                                                {capture.piece.toUpperCase()}{" "}
-                                                {capture.from} → {capture.to}
-                                            </div>
-                                        )
-                                    )}
+                                    <div className="stat-item">
+                                        <span className="stat-label">
+                                            Шахи:
+                                        </span>
+                                        <span className="stat-value">
+                                            {stats.blackChecks}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
